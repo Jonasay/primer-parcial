@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sistema de Control de Rachas de Inicio de Sesión</title>
+  <!-- Bootstrap 5 CSS CDN -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Bootstrap Icons CDN -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+  <style>
+    body {
+      background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+      color: #f8fafc;
+      min-height: 100vh;
+    }
+
+    .card-custom {
+      background: rgba(30, 41, 59, 0.95);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 1rem;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+    }
+
+    .fire-icon {
+      color: #ff6b00;
+      filter: drop-shadow(0 0 8px rgba(255, 107, 0, 0.8));
+    }
+
+    .trophy-icon {
+      color: #ffb703;
+      filter: drop-shadow(0 0 8px rgba(255, 183, 3, 0.8));
+    }
+
+    .user-header-card {
+      background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 1rem;
+    }
+  </style>
+</head>
+
+<body class="d-flex flex-column min-vh-100">
+
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg navbar-dark bg-slate-900 border-bottom border-secondary mb-4">
+    <div class="container">
+      <a class="navbar-brand fw-bold text-warning" href="#">
+        <i class="bi bi-fire fire-icon me-2"></i>Sistema de Rachas Noe Say TDS
+      </a>
+      <div id="nav-user-info" class="d-none">
+        <button id="btn-cerrar-sesion" class="btn btn-outline-light btn-sm">
+          <i class="bi bi-box-arrow-right me-1"></i> Cerrar Sesión
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container my-auto">
+
+    <!-- PANTALLA 1: INICIO DE SESIÓN / REGISTRO (AUTENTICACIÓN) -->
+    <div id="pantalla-auth" class="row justify-content-center">
+      <div class="col-md-6 col-lg-5">
+        <div class="card card-custom p-4">
+
+          <!-- Navegación por pestañas -->
+          <ul class="nav nav-pills nav-justified mb-4" id="authTab" role="tablist">
+            <li class="nav-item" role="presentation">
+              <button class="nav-link active fw-bold" id="tab-login" data-bs-toggle="pill" data-bs-target="#panel-login"
+                type="button">
+                <i class="bi bi-box-arrow-in-right me-1"></i> Iniciar Sesión
+              </button>
+            </li>
+            <li class="nav-item" role="presentation">
+              <button class="nav-link fw-bold" id="tab-registro" data-bs-toggle="pill" data-bs-target="#panel-registro"
+                type="button">
+                <i class="bi bi-person-plus me-1"></i> Registrarse
+              </button>
+            </li>
+          </ul>
+
+          <div class="tab-content" id="authTabContent">
+            <!-- Formulario Login -->
+            <div class="tab-pane fade show active" id="panel-login" role="tabpanel">
+              <h4 class="text-center text-info mb-3">Acceso al Sistema</h4>
+              <form id="form-login">
+                <div class="mb-3">
+                  <label for="login-user" class="form-label text-light">Usuario:</label>
+                  <input type="text" class="form-control bg-dark text-light border-secondary" id="login-user"
+                    placeholder="Ingresa tu usuario" required>
+                </div>
+                <div class="mb-3">
+                  <label for="login-pass" class="form-label text-light">Contraseña:</label>
+                  <input type="password" class="form-control bg-dark text-light border-secondary" id="login-pass"
+                    placeholder="Ingresa tu contraseña" required>
+                </div>
+                <button type="submit" class="btn btn-warning w-100 fw-bold">
+                  <i class="bi bi-box-arrow-in-right me-1"></i> Entrar y Registrar Racha
+                </button>
+              </form>
+            </div>
+
+            <!-- Formulario Registro -->
+            <div class="tab-pane fade" id="panel-registro" role="tabpanel">
+              <h4 class="text-center text-info mb-3">Crear Cuenta Nueva</h4>
+              <form id="form-registro">
+                <div class="mb-3">
+                  <label for="reg-user" class="form-label text-light">Nombre de Usuario:</label>
+                  <input type="text" class="form-control bg-dark text-light border-secondary" id="reg-user"
+                    placeholder="Ej: Noe Xicara" required>
+                </div>
+                <div class="mb-3">
+                  <label for="reg-pass" class="form-label text-light">Contraseña:</label>
+                  <input type="password" class="form-control bg-dark text-light border-secondary" id="reg-pass"
+                    placeholder="Contraseña segura" required>
+                </div>
+                <button type="submit" class="btn btn-primary w-100 fw-bold">
+                  <i class="bi bi-person-check me-1"></i> Crear Cuenta
+                </button>
+              </form>
+            </div>
+          </div>
+
+          <!-- Mensaje Alerta -->
+          <div id="alert-auth" class="mt-3"></div>
+
+        </div>
+      </div>
+    </div>
+
+
+    <!-- PANTALLA 2: PANEL DE RACHAS (VISTA PRINCIPAL LUEGO DEL LOGIN) -->
+    <div id="pantalla-dashboard" class="d-none">
+
+      <!-- ENCABEZADO SUPERIOR: USUARIO Y SU RACHA -->
+      <div class="user-header-card p-4 mb-4 text-center">
+        <h2 class="fw-bold mb-2">¡Bienvenido, <span id="dash-username" class="text-warning">Usuario</span>! 👋</h2>
+        <div class="d-flex justify-content-center align-items-center gap-4 flex-wrap mt-3">
+          <div class="bg-dark p-3 rounded-3 border border-warning">
+            <span class="d-block text-secondary small">Racha Actual</span>
+            <span class="fs-2 fw-extrabold text-warning">
+              <i class="bi bi-fire fire-icon me-1"></i><span id="dash-racha-actual">0</span> día(s)
+            </span>
+          </div>
+          <div class="bg-dark p-3 rounded-3 border border-info">
+            <span class="d-block text-secondary small">Racha Máxima Histórica</span>
+            <span class="fs-2 fw-extrabold text-info">
+              <i class="bi bi-award trophy-icon me-1"></i><span id="dash-racha-maxima">0</span> día(s)
+            </span>
+          </div>
+        </div>
+        <div id="dash-mensaje-racha" class="alert alert-info mt-3 mb-0 d-inline-block text-start"></div>
+      </div>
+
+      <!-- TABLA EN EL MEDIO: LISTA DE USUARIOS -->
+      <div class="card card-custom p-4">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h4 class="m-0 text-warning"><i class="bi bi-trophy trophy-icon me-2"></i>Tabla General de Rachas</h4>
+          <button id="btn-refresh" class="btn btn-outline-info btn-sm">
+            <i class="bi bi-arrow-clockwise"></i> Actualizar
+          </button>
+        </div>
+
+        <div class="table-responsive">
+          <table class="table table-dark table-hover align-middle rounded overflow-hidden mb-0">
+            <thead class="table-secondary">
+              <tr>
+                <th>Usuario</th>
+                <th class="text-center"><i class="bi bi-fire fire-icon me-1"></i>Racha Actual</th>
+                <th class="text-center"><i class="bi bi-award trophy-icon me-1"></i>Máxima Histórica</th>
+                <th class="text-center">Último Login</th>
+              </tr>
+            </thead>
+            <tbody id="tabla-usuarios">
+              <tr>
+                <td colspan="4" class="text-center text-muted py-3">Cargando usuarios...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- Footer -->
+  <footer class="mt-auto py-3 bg-slate-900 border-top border-secondary text-center text-muted small">
+    <div class="container">
+      Sistema de Rachas con Autenticación Hasheada (Flask, Bootstrap, Supabase).
+    </div>
+  </footer>
+
+  <!-- Bootstrap JS Bundle CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script>
+    const API_BASE = window.location.origin + '/api';
+
+    // Manejo de Registro
+    document.getElementById('form-registro').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const nombre = document.getElementById('reg-user').value.trim();
+      const password = document.getElementById('reg-pass').value;
+      mostrarAlertaAuth('procesando', 'Registrando usuario...');
+
+      try {
+        const res = await fetch(`${API_BASE}/registrar`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ nombre, password })
+        });
+        const data = await res.json();
+
+        if (res.ok) {
+          mostrarAlertaAuth('éxito', data.mensaje + ' Ya puedes iniciar sesión.');
+          document.getElementById('reg-user').value = '';
+          document.getElementById('reg-pass').value = '';
+        } else {
+          mostrarAlertaAuth('error', data.error || 'Error al registrar');
+        }
+      } catch (err) {
+        mostrarAlertaAuth('error', 'Error de conexión con el servidor.');
+      }
+    });
+
+    // Manejo de Login
+    document.getElementById('form-login').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const nombre = document.getElementById('login-user').value.trim();
+      const password = document.getElementById('login-pass').value;
+      mostrarAlertaAuth('procesando', 'Verificando credenciales...');
+
+      try {
+        const res = await fetch(`${API_BASE}/login`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ nombre, password })
+        });
+        const data = await res.json();
+
+        if (res.ok) {
+          // Iniciar sesión y mostrar Pantalla 2
+          mostrarDashboard(data);
+        } else {
+          mostrarAlertaAuth('error', data.error || 'Error al iniciar sesión');
+        }
+      } catch (err) {
+        mostrarAlertaAuth('error', 'Error de conexión con el servidor.');
+      }
+    });
+
+    // Mostrar Dashboard
+    function mostrarDashboard(data) {
+      document.getElementById('pantalla-auth').classList.add('d-none');
+      document.getElementById('pantalla-dashboard').classList.remove('d-none');
+      document.getElementById('nav-user-info').classList.remove('d-none');
+
+      document.getElementById('dash-username').innerText = data.usuario;
+      document.getElementById('dash-racha-actual').innerText = data.racha_actual;
+      document.getElementById('dash-racha-maxima').innerText = data.racha_maxima;
+      document.getElementById('dash-mensaje-racha').innerHTML = `<i class="bi bi-info-circle me-1"></i> ${data.detalle_racha}`;
+
+      cargarUsuarios();
+    }
+
+    // Cerrar sesión
+    document.getElementById('btn-cerrar-sesion').addEventListener('click', () => {
+      document.getElementById('pantalla-dashboard').classList.add('d-none');
+      document.getElementById('nav-user-info').classList.add('d-none');
+      document.getElementById('pantalla-auth').classList.remove('d-none');
+      document.getElementById('login-user').value = '';
+      document.getElementById('login-pass').value = '';
+      document.getElementById('alert-auth').innerHTML = '';
+    });
+
+    // Botón refrescar tabla
+    document.getElementById('btn-refresh').addEventListener('click', cargarUsuarios);
+
+    // Cargar usuarios en la tabla
+    async function cargarUsuarios() {
+      const tbody = document.getElementById('tabla-usuarios');
+      try {
+        const res = await fetch(`${API_BASE}/usuarios`);
+        const data = await res.json();
+
+        if (res.ok) {
+          if (data.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="4" class="text-center text-muted py-3">No hay usuarios registrados aún.</td></tr>`;
+            return;
+          }
+
+          tbody.innerHTML = data.map(u => `
+            <tr>
+              <td class="fw-bold text-light">${escaparHtml(u.nombre)}</td>
+              <td class="text-center">
+                <span class="badge bg-warning text-dark px-3 py-2 fs-6">
+                  <i class="bi bi-fire me-1"></i>${u.racha_actual || 0} día(s)
+                </span>
+              </td>
+              <td class="text-center">
+                <span class="badge bg-outline-warning text-warning border border-warning px-3 py-2 fs-6">
+                  <i class="bi bi-award me-1"></i>${u.racha_maxima || 0} día(s)
+                </span>
+              </td>
+              <td class="text-center text-secondary">
+                ${u.ultima_fecha_login ? u.ultima_fecha_login : '<span class="badge bg-secondary">Sin logins</span>'}
+              </td>
+            </tr>
+          `).join('');
+        } else {
+          tbody.innerHTML = `<tr><td colspan="4" class="text-center text-danger py-3">Error al cargar usuarios: ${data.error}</td></tr>`;
+        }
+      } catch (err) {
+        tbody.innerHTML = `<tr><td colspan="4" class="text-center text-danger py-3">No se pudo conectar con la API backend.</td></tr>`;
+      }
+    }
+
+    function mostrarAlertaAuth(tipo, mensaje) {
+      const alertContainer = document.getElementById('alert-auth');
+      let clase = 'alert-info';
+      if (tipo === 'éxito') clase = 'alert-success';
+      if (tipo === 'error') clase = 'alert-danger';
+
+      alertContainer.innerHTML = `
+        <div class="alert ${clase} alert-dismissible fade show text-center" role="alert">
+          ${mensaje}
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+      `;
+    }
+
+    function escaparHtml(text) {
+      return text.replace(/[&<>"']/g, function (m) {
+        return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }[m];
+      });
+    }
+  </script>
+</body>
+
+</html>
